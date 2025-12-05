@@ -1,84 +1,46 @@
 ﻿using System;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-// Este programa consume una API REST completamente
-// Puedes ejecutar GET, POST, PUT y DELETE
-
-class Program
+namespace ApiConsumer
 {
-    static async Task Main(string[] args)
+    class Program
     {
-        // Cambia esta URL si quieres consumir tu API
-        string baseUrl = "https://api.telepatia.ai/api/public-docs#/";
-
-        using var client = new HttpClient();
-        client.BaseAddress = new Uri(baseUrl);
-
-        Console.WriteLine("=== Programa que consume una API ===\n");
-
-        // ========================
-        //         GET
-        // ========================
-        Console.WriteLine("🔵 GET /posts/1\n");
-
-        var dato = await client.GetFromJsonAsync<Post>("posts/1");
-        Console.WriteLine($"ID: {dato.Id}");
-        Console.WriteLine($"Título: {dato.Title}");
-        Console.WriteLine($"Contenido: {dato.Body}\n");
-
-        // ========================
-        //         POST
-        // ========================
-        Console.WriteLine("🟢 POST /posts\n");
-
-        var nuevoPost = new Post
+        static async Task Main(string[] args)
         {
-            UserId = 99,
-            Title = "Título creado desde C#",
-            Body = "Mensaje enviado al servidor"
-        };
+            using HttpClient client = new HttpClient();
 
-        var postResponse = await client.PostAsJsonAsync("posts", nuevoPost);
-        var creado = await postResponse.Content.ReadFromJsonAsync<Post>();
+            // ====== API KEY (si tu API la usa) ======
+            // Si tu API usa "Bearer":
+            client.DefaultRequestHeaders.Add("Authorization", "b9b5cdd9-9230-40a8-9a93-567b0134d4c8");
 
-        Console.WriteLine($"Creado ID: {creado.Id}");
-        Console.WriteLine($"Título: {creado.Title}\n");
+            // Si tu API usa "X-API-Key", usa este en cambio:
+            // client.DefaultRequestHeaders.Add("X-API-Key", "TU_API_KEY");
 
-        // ========================
-        //         PUT
-        // ========================
-        Console.WriteLine("🟡 PUT /posts/1\n");
+            // ====== Headers básicos ======
+            client.DefaultRequestHeaders.Add("User-Agent", "C# Console App");
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
 
-        var actualizar = new Post
-        {
-            Id = 1,
-            UserId = 1,
-            Title = "Título actualizado",
-            Body = "Contenido actualizado"
-        };
+            // ====== URL DE TU API ======
+            string url = "https://api.telepatia.ai/api/public-docs#/Public%20API%20-%20Institutionals%20V1/PublicApiInstitutionalsController_listDoctors";
 
-        var putResponse = await client.PutAsJsonAsync("posts/1", actualizar);
-        Console.WriteLine($"PUT Status: {putResponse.StatusCode}\n");
+            try
+            {
+                var response = await client.GetAsync(url);
 
-        // ========================
-        //       DELETE
-        // ========================
-        Console.WriteLine("🔴 DELETE /posts/1\n");
+                // Lanza excepción si falla
+                response.EnsureSuccessStatusCode();
 
-        var deleteResponse = await client.DeleteAsync("posts/1");
-        Console.WriteLine($"DELETE Status: {deleteResponse.StatusCode}\n");
+                string result = await response.Content.ReadAsStringAsync();
 
-        Console.WriteLine("=== FIN DEL PROGRAMA ===");
+                Console.WriteLine("Respuesta del servidor:");
+                Console.WriteLine(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error:");
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
-}
-
-// Modelo para mapear la respuesta de la API
-public class Post
-{
-    public int UserId { get; set; }
-    public int Id { get; set; }
-    public string Title { get; set; }
-    public string Body { get; set; }
 }
