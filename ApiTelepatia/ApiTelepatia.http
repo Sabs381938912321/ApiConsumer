@@ -1,0 +1,6 @@
+@ApiTelepatia_HostAddress = http://localhost:5111
+
+GET {{ApiTelepatia_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

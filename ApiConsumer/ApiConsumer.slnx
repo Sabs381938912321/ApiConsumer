@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../ApiTelepatia/ApiTelepatia.csproj" Id="fb372764-8743-4f86-ab1e-31bff1682d52" />
   <Project Path="ApiConsumer.csproj" />
 </Solution>
